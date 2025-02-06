@@ -15,7 +15,7 @@ if [ "$COUNT1" -eq 0 ]; then
     echo "警告：第一个仓库没有新提交"
 fi
 
-echo "$LOG1" | /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/releaseNote $COUNT1 1 0
+echo "$LOG1" | /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/releaseNote $COUNT1 1 0
 if [ $? -ne 0 ]; then
     echo "在第一个目录中执行 releaseNote 失败"
     exit 1
@@ -34,21 +34,20 @@ COUNT2=$(echo "$LOG2" | grep -cE '^[0-9a-f]')
 if [ "$COUNT2" -eq 0 ]; then
     echo "警告：第二个仓库没有新提交" 
 fi
-
+  
 # 保留LOG1文件内容与LOG2对比，将去重后的LOG2和COUNT2传递给releaseNote
-echo "$LOG1" | awk '{sub(/[^ ]+ /, ""); print}' > /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/log1_ccnc
+echo "$LOG1" | awk '{sub(/[^ ]+ /, ""); print}' > /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/log1_ccnc
 LOG2_FILTERED=$(echo "$LOG2" | awk '{line=$0; sub(/[^ ]+ /, ""); if(!seen[$0]++) print line}' | 
-awk 'BEGIN {while(getline <"/media/lxy/work/ccncResource/pcsh/releaseNoteAuto/log1_ccnc") seen[$0]++} {msg=$0; sub(/[^ ]+ /, ""); if(!seen[$0]++) print msg}' -)
+awk 'BEGIN {while(getline <"/media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/log1_ccnc") seen[$0]++} {msg=$0; sub(/[^ ]+ /, ""); if(!seen[$0]++) print msg}' -)
 COUNT2_FILTERED=$(echo "$LOG2_FILTERED" | grep -cE '^[0-9a-f]')
 
-echo "$LOG2_FILTERED" | /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/releaseNote $COUNT2_FILTERED 2 $COUNT1
-
+echo "$LOG2_FILTERED" | /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/releaseNote $COUNT2_FILTERED 2 $COUNT1 
 if [ $? -ne 0 ]; then
     echo "在第二个目录中执行 releaseNote 失败"
     exit 1
 fi
 
-cat /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/releaseNote.txt
+cat /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/releaseNote.txt
 echo ""
 echo "English:"
 echo "map-engine-daemon branch:$BRANCH1" # 输出第一个目录的git分支

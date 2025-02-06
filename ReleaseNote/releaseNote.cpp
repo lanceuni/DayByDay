@@ -15,7 +15,7 @@ int pro(int num, int offset = 0, bool append_mode = false)
     std::smatch match;
 
     // 根据模式选择文件打开方式
-    std::ofstream output_file("/media/lxy/work/ccncResource/pcsh/releaseNoteAuto/releaseNote.txt", 
+    std::ofstream output_file("/media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/releaseNote.txt", 
                              append_mode ? std::ios_base::app : std::ios_base::out);
     if (!output_file) {
         std::cerr << "无法打开文件 releaseNote.txt" << std::endl;
