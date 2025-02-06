@@ -110,8 +110,8 @@ int pro2(int num,int num1)
             count++;
             continue; // 处理下一行
         }
-        // 检查内容是否包含 "Merge changes"
-        if (line.find("Merge changes") != std::string::npos) {
+        // 检查内容是否包含 "Merge"
+        if (line.find("Merge") != std::string::npos) {
             continue; // 处理下一行
         }
         // 忽略 cc-XXXX 前的内容
