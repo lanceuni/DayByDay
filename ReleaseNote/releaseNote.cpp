@@ -85,8 +85,8 @@ int pro(int num, int offset = 0, bool append_mode = false)
                 // 提取内容，从第一个不为空的字符开始
                 std::string hyccnc_content = hyccnc_match[2].str();
                 // 新增：过滤剩余方括号
-                hyccnc_content = std::regex_replace(hyccnc_content, std::regex(R"(^[\]\s]+)"), "");
-                hyccnc_content.erase(0, hyccnc_content.find_first_not_of(" \t"));
+                // hyccnc_content = std::regex_replace(hyccnc_content, std::regex(R"(^[\]\s]+)"), "");
+                // hyccnc_content.erase(0, hyccnc_content.find_first_not_of(" \t"));
                 // 输出到文件，序号和内容之间没有空格
                 if (!hyccnc_content.empty()) {
                     output_file << count + offset << "." << hyccnc_content << std::endl;

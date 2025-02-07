@@ -8,7 +8,7 @@ TAG_COMMIT1=$(git describe --tags --abbrev=0)
 TAG_TIME1=$(git log -1 --format=%ct "$TAG_COMMIT1")
 ((TAG_TIME1++))  # 排除标签提交
 # 获取该时间之后的日志并计数
-LOG1=$(git log --since=@$TAG_TIME1 --oneline)
+LOG1=$(git log --since=@$TAG_TIME1 --oneline | awk '{match($0,/HYCCNC-[0-9]+/); id=substr($0,RSTART,RLENGTH); if(id && !seen[id]++) print; else if(!id) print}')
 COUNT1=$(echo "$LOG1" | grep -cE '^[0-9a-f]') 
 # 添加空日志检测
 if [ "$COUNT1" -eq 0 ]; then
@@ -29,16 +29,17 @@ TAG_COMMIT2=$(git describe --tags --abbrev=0)
 TAG_TIME2=$(git log -1 --format=%ct "$TAG_COMMIT2")
 ((TAG_TIME2++))  # 排除标签提交
 # 获取该时间之后的日志并计数
-LOG2=$(git log --since=@$TAG_TIME2 --oneline)
+LOG2=$(git log --since=@$TAG_TIME2 --oneline | awk '{match($0,/HYCCNC-[0-9]+/); id=substr($0,RSTART,RLENGTH); if(id && !seen[id]++) print; else if(!id) print}')
 COUNT2=$(echo "$LOG2" | grep -cE '^[0-9a-f]')
 if [ "$COUNT2" -eq 0 ]; then
     echo "警告：第二个仓库没有新提交" 
 fi
   
-# 保留LOG1文件内容与LOG2对比，将去重后的LOG2和COUNT2传递给releaseNote
-echo "$LOG1" | awk '{sub(/[^ ]+ /, ""); print}' > /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/log1_ccnc
-LOG2_FILTERED=$(echo "$LOG2" | awk '{line=$0; sub(/[^ ]+ /, ""); if(!seen[$0]++) print line}' | 
-awk 'BEGIN {while(getline <"/media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/log1_ccnc") seen[$0]++} {msg=$0; sub(/[^ ]+ /, ""); if(!seen[$0]++) print msg}' -)
+# 修改过滤逻辑
+echo "$LOG1" | awk '{match($0,/HYCCNC-[0-9]+/); id=substr($0,RSTART,RLENGTH); print id}' > /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/log1_ccnc
+LOG2_FILTERED=$(echo "$LOG2" | awk '{line=$0; match(line,/HYCCNC-[0-9]+/); id=substr(line,RSTART,RLENGTH); if(id && !seen[id]++) print line}' | 
+awk 'BEGIN {while(getline <"/media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/log1_ccnc") seen[$0]++} 
+{match($0,/HYCCNC-[0-9]+/); id=substr($0,RSTART,RLENGTH); if(id && !seen[id]++) print $0; else if(!id) print $0}' -)
 COUNT2_FILTERED=$(echo "$LOG2_FILTERED" | grep -cE '^[0-9a-f]')
 
 echo "$LOG2_FILTERED" | /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/releaseNote $COUNT2_FILTERED 2 $COUNT1 
