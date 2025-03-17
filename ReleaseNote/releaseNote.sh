@@ -6,7 +6,7 @@ BRANCH1=$(git rev-parse --abbrev-ref HEAD)
 # 获取最近标签对应的提交时间并+1秒（使用committer date）
 TAG_COMMIT1=$(git describe --tags --abbrev=0)
 TAG_TIME1=$(git log -1 --format=%ct "$TAG_COMMIT1")
-((TAG_TIME1++))  # 排除标签提交
+TAG_TIME1=$((TAG_TIME1 + 1)) # 排除标签提交
 # 获取该时间之后的日志并计数
 LOG1=$(git log --since=@$TAG_TIME1 --oneline | awk '{match($0,/HYCCNC-[0-9]+/); id=substr($0,RSTART,RLENGTH); if(id && !seen[id]++) print; else if(!id) print}')
 COUNT1=$(echo "$LOG1" | grep -cE '^[0-9a-f]') 
@@ -27,7 +27,7 @@ BRANCH2=$(git rev-parse --abbrev-ref HEAD)
 # 获取最近标签对应的提交时间并+1秒（使用committer date）
 TAG_COMMIT2=$(git describe --tags --abbrev=0)
 TAG_TIME2=$(git log -1 --format=%ct "$TAG_COMMIT2")
-((TAG_TIME2++))  # 排除标签提交
+TAG_TIME2=$((TAG_TIME2 + 1)) # 排除标签提交
 # 获取该时间之后的日志并计数
 LOG2=$(git log --since=@$TAG_TIME2 --oneline | awk '{match($0,/HYCCNC-[0-9]+/); id=substr($0,RSTART,RLENGTH); if(id && !seen[id]++) print; else if(!id) print}')
 COUNT2=$(echo "$LOG2" | grep -cE '^[0-9a-f]')
