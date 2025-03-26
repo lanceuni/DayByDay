@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <fstream>
 
-int pro(int num, int offset = 0, bool append_mode = false)
+int pro(int num, int offset = 0, bool append_mode = false, const std::string& output_path = "")
 {
     int count_limit = num;
     std::string line;
@@ -15,7 +15,7 @@ int pro(int num, int offset = 0, bool append_mode = false)
     std::smatch match;
 
     // 根据模式选择文件打开方式
-    std::ofstream output_file("/media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/releaseNote.txt", 
+    std::ofstream output_file(output_path, 
                              append_mode ? std::ios_base::app : std::ios_base::out);
     if (!output_file) {
         std::cerr << "无法打开文件 releaseNote.txt" << std::endl;
@@ -101,19 +101,20 @@ int pro(int num, int offset = 0, bool append_mode = false)
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 4) {
-        std::cerr << "用法: " << argv[0] << " <需要读取的行数> <模式选择> <偏移量>" << std::endl;
+    if (argc != 5) {
+        std::cerr << "用法: " << argv[0] << " <需要读取的行数> <模式选择> <偏移量> <输出文件路径>" << std::endl;
         return 1;
     }
     int count_limit = std::stoi(argv[1]);
     int choice = std::stoi(argv[2]);
     int offset = std::stoi(argv[3]);
+    std::string output_path = argv[4];
 
     if (choice == 1) {
-        pro(count_limit); // 默认参数offset=0, append_mode=false
+        pro(count_limit, 0, false, output_path);
     }
     else if (choice == 2) {
-        pro(count_limit, offset, true); // 带偏移量并使用追加模式
+        pro(count_limit, offset, true, output_path);
     }
     return 0;
 }

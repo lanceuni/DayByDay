@@ -1,7 +1,10 @@
 #!/bin/bash
+# config
+txt_path="/media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote"
+code_path="/media/lxy/work/l3"
 
 # 第一个目录处理
-cd /media/lxy/work/l3/map-engine-daemon || { echo "目录不存在: /media/lxy/work/l3/map-engine-daemon"; exit 1; }
+cd $code_path/map-engine-daemon || { echo "目录不存在: $code_path/map-engine-daemon"; exit 1; }
 BRANCH1=$(git rev-parse --abbrev-ref HEAD)
 # 获取最近标签对应的提交时间并+1秒（使用committer date）
 TAG_COMMIT1=$(git describe --tags --abbrev=0)
@@ -15,14 +18,14 @@ if [ "$COUNT1" -eq 0 ]; then
     echo "警告：第一个仓库没有新提交"
 fi
 
-echo "$LOG1" | /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/releaseNote $COUNT1 1 0
+echo "$LOG1" | $txt_path/releaseNote $COUNT1 1 0 $txt_path/releaseNote.txt
 if [ $? -ne 0 ]; then
     echo "在第一个目录中执行 releaseNote 失败"
     exit 1
 fi
 
 # 第二个目录处理
-cd /media/lxy/work/l3/mapauto-engine || { echo "目录不存在: /media/lxy/work/l3/mapauto-engine"; exit 1; }
+cd $code_path/mapauto-engine || { echo "目录不存在: $code_path/mapauto-engine"; exit 1; }
 BRANCH2=$(git rev-parse --abbrev-ref HEAD)
 # 获取最近标签对应的提交时间并+1秒（使用committer date）
 TAG_COMMIT2=$(git describe --tags --abbrev=0)
@@ -35,20 +38,23 @@ if [ "$COUNT2" -eq 0 ]; then
     echo "警告：第二个仓库没有新提交" 
 fi
   
-# 修改过滤逻辑
-echo "$LOG1" | awk '{match($0,/HYCCNC-[0-9]+/); id=substr($0,RSTART,RLENGTH); print id}' > /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/log1_ccnc
-LOG2_FILTERED=$(echo "$LOG2" | awk '{line=$0; match(line,/HYCCNC-[0-9]+/); id=substr(line,RSTART,RLENGTH); if(id && !seen[id]++) print line}' | 
-awk 'BEGIN {while(getline <"/media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/log1_ccnc") seen[$0]++} 
-{match($0,/HYCCNC-[0-9]+/); id=substr($0,RSTART,RLENGTH); if(id && !seen[id]++) print $0; else if(!id) print $0}' -)
+# 过滤逻辑
+echo "$LOG1" | awk '{match($0,/HYCCNC-[0-9]+/); id=substr($0,RSTART,RLENGTH); print id}' > "$txt_path/log1_ccnc"
+LOG2_FILTERED=$(echo "$LOG2" | awk -v txt_path="$txt_path" '
+    {line=$0; match(line,/HYCCNC-[0-9]+/); id=substr(line,RSTART,RLENGTH); if(id && !seen[id]++) print line}' | 
+awk -v txt_path="$txt_path" '
+    BEGIN {while(getline < (txt_path "/log1_ccnc")) seen[$0]++} 
+    {match($0,/HYCCNC-[0-9]+/); id=substr($0,RSTART,RLENGTH); if(id && !seen[id]++) print $0; else if(!id) print $0}'
+)
 COUNT2_FILTERED=$(echo "$LOG2_FILTERED" | grep -cE '^[0-9a-f]')
 
-echo "$LOG2_FILTERED" | /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/releaseNote $COUNT2_FILTERED 2 $COUNT1 
+echo "$LOG2_FILTERED" | $txt_path/releaseNote $COUNT2_FILTERED 2 $COUNT1 $txt_path/releaseNote.txt
 if [ $? -ne 0 ]; then
     echo "在第二个目录中执行 releaseNote 失败"
     exit 1
 fi
 
-cat /media/lxy/work/ccncResource/pcsh/releaseNoteAuto/ReleaseNote/releaseNote.txt
+cat $txt_path/releaseNote.txt
 echo ""
 echo "English:"
 echo "map-engine-daemon branch:$BRANCH1" # 输出第一个目录的git分支
