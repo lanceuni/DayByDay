@@ -1,32 +1,58 @@
 #include <gtest/gtest.h>
 #include "src.h"
+namespace mac{
+namespace adas{
+// 基础测试夹具类
+class BaseTestFixture : public ::testing::Test {
+protected:
+    Testprocess* testprocess;
 
-// 测试用例
-TEST(AddTest, BasicTest) {
+    void SetUp() override {
+        std::cout << "=== 测试环境初始化 ===" << std::endl;
+        testprocess = new Testprocess();
+        testprocess->Start();
+        testprocess->Run();
+    }
+
+    void TearDown() override {
+        testprocess->Stop();
+        delete testprocess;
+        testprocess = nullptr;
+        std::cout << "=== 测试环境清理 ===" << std::endl;
+    }
+};
+
+// 具体测试夹具继承基类
+class AddTest : public BaseTestFixture {};
+class DestructorTest : public BaseTestFixture {};
+class SingletonTest : public BaseTestFixture {};
+class getInstanceTest : public BaseTestFixture {};
+
+TEST_F(AddTest, BasicTest) {
     int result = Add(2, 3);
-    // 断言结果是否符合预期
+    std::cout << "=== BasicTest ===" << std::endl;
     EXPECT_EQ(result, 5);
 }
 
-// 析构函数测试用例
-TEST(DestructorTest, BasicDestructor) {
+// 修改现有测试用例继承结构
+TEST_F(DestructorTest, BasicDestructor) {
     {
-        ResourceHolder obj;  // 创建对象
-        // 对象离开作用域时会自动调用析构函数
+        ResourceHolder obj;
     }
 }
 
-// 单例测试用例
-TEST(SingletonTest, MultiGetInstance) {
-    // 第一次调用触发初始化
+TEST_F(SingletonTest, MultiGetInstance) {
+    std::cout << "=== SingletonTest 1===" << std::endl;
     Logger& logger1 = Logger::getInstance();
-    // 验证单例特性
-    EXPECT_NE(&logger1, nullptr); 
+    std::cout << "=== SingletonTest 2===" << std::endl;
+    EXPECT_NE(&logger1, nullptr);
 }
 
-TEST(getInstanceTest, ImplGetInstance) {
-    B obj = B::getInstance();
+TEST_F(getInstanceTest, ImplGetInstance) {
+    B& obj = B::getInstance(); // 改为引用
     // 验证单例特性
     EXPECT_NE(&obj, nullptr);
-
 }
+
+};// namespace adas
+};// namespace mac

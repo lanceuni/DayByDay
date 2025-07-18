@@ -49,6 +49,14 @@ int B::C::add(int a, int b) {
     return a + b;
 }
 
+int B::C::addIf(int a, int b) {
+    if (a>b)
+    {
+        return a + 1;
+    }
+    return a + b;
+}
+
 int B::C::subtract(int a, int b) {
     return a - b;
 }

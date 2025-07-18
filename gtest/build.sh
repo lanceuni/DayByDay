@@ -1,1 +1,0 @@
-g++ -std=c++17 -isystem /usr/local/include -pthread -fprofile-arcs -ftest-coverage src.cpp src_test.cpp main.cpp /usr/local/lib/libgtest.a -o test
